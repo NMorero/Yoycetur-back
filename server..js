@@ -10,7 +10,9 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors')
 
 app.use(express.static('public'));
-app.use(cors()); // it enables all cors requests
+app.use(cors({
+  origin: '*'
+}));
 app.use(fileUpload());
 
 
@@ -46,16 +48,51 @@ connection.on('error', function(err) {
 handleDisconnect();
 
 app.get('/getTravelOuts', (req, res) => {
-    connection.query('SELECT * FROM `travel_outs`', function (error, results, fields) {
-      if (error) throw error;
-      if (results.length > 0) {
-        res.send(JSON.stringify({ status: 0, travelOuts: results[0]}))      
-      } else {
-        res.send(JSON.stringify({ status: 2 }))
-      }
-    });
-    
-  })
+  connection.query('SELECT * FROM `travel_outs`', function (error, results, fields) {
+    if (error) throw error;
+    if (results.length > 0) {
+      res.send(JSON.stringify({ status: 0, travelOuts: results}))      
+    } else {
+      res.send(JSON.stringify({ status: 2 }))
+    }
+  });   
+})
+
+app.get('/getTravel/:travel', (req, res) => {
+  var sql = "SELECT * FROM travels WHERE travels.title="+"'"+req.params.travel.replaceAll('-',' ')+"'";
+  connection.query(sql, function (error, results, fields) {
+    if (error) throw error;
+    if (results.length > 0) {
+      res.send(JSON.stringify({ status: 0, travel: results[0]}))      
+    } else {
+      res.send(JSON.stringify({ status: 2 }))
+    }
+  });   
+})
+
+app.get('/getTravelOutBanner/:travelOut', (req, res) => {
+  connection.query("SELECT banner FROM `travel_outs`  WHERE travel_outs.title = "+"'"+req.params.travelOut.replaceAll('-',' ')+"'", function (error, results, fields) {
+    if (error) throw error;
+    if (results.length > 0) {
+      res.send(JSON.stringify({ status: 0, banner: results[0]}))      
+    } else {
+      res.send(JSON.stringify({ status: 2 }))
+    }
+  });   
+})
+
+app.get('/getTravels/:travelOut', (req, res) => {
+  var sql ="SELECT t.travelId, t.title, t.price, t.image FROM travels t JOIN travel_outs ON t.travelsTravelOutId = travel_outs.travelOutId WHERE travel_outs.title = "+"'"+req.params.travelOut.replaceAll('-',' ')+"'";
+  connection.query(sql, function (error, results, fields) {
+    if (error) throw error;
+    if (results.length > 0) {
+      res.send(JSON.stringify({ status: 0, travels: results}))      
+    } else {
+      res.send(JSON.stringify({ status: 2 }))
+    }
+  });   
+})
+
 
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`)
