@@ -8,6 +8,7 @@ const sharp = require('sharp')
 const fs = require('fs')
 const fileUpload = require('express-fileupload');
 const cors = require('cors')
+const bodyParser = require('body-parser');
 
 app.use(express.static('public'));
 app.use(cors({
@@ -15,6 +16,12 @@ app.use(cors({
 }));
 app.use(fileUpload());
 
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+app.use(express.json());
 
 var connection;
 
@@ -25,11 +32,8 @@ connection = mysql.createConnection({
     password: '.})WH7EQl.dv',
     database: 'yoycetur'
     }); 
-    // Recreate the connection, since
-                                                // the old one cannot be reused.
-
-connection.connect(function(err) {              // The server is either down
-    if(err) {                                     // or restarting (takes a while sometimes).
+connection.connect(function(err) {             
+    if(err) {                                     
     console.log('error when connecting to db:', err);
     setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
     }                                     // to avoid a hot loop, and to allow our node script to
@@ -91,6 +95,15 @@ app.get('/getTravels/:travelOut', (req, res) => {
       res.send(JSON.stringify({ status: 2 }))
     }
   });   
+})
+
+app.post('/login', (req, res) => {
+  console.log(req.body)
+  if(req.body.user == 'yoycetur' && req.body.pass == 'Yoycetur@2021'){
+    res.json({status:0})
+  }else{
+    res.json({status:1})
+  }
 })
 
 
