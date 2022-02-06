@@ -11,7 +11,7 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors')
 const bodyParser = require('body-parser');
 
-app.use(express.static('public'));
+app.use("/images", express.static(path.resolve(__dirname + '/public/images')));
 app.use(cors({
   origin: '*'
 }));
