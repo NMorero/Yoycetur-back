@@ -4,6 +4,7 @@ const port = 3002
 const mysql = require('mysql');
 const path = require('path');
 const multer = require('multer');
+const upload = multer({dest: 'public/images/'});
 const sharp = require('sharp')
 const fs = require('fs')
 const fileUpload = require('express-fileupload');
@@ -104,6 +105,55 @@ app.post('/login', (req, res) => {
   }else{
     res.json({status:1})
   }
+})
+
+
+app.post('/addTravelOut', (req, res) => {
+  let image = req.files.image;
+  let fileNameImage = Date.now()+'.'+image.mimetype.split('/')[1];
+  uploadPathImage = __dirname + '/public/images/travel_outs/image/' + fileNameImage;
+  image.mv(uploadPathImage, function(err) {
+  });
+
+  let banner = req.files.banner;
+  let fileNameBanner = Date.now()+'.'+banner.mimetype.split('/')[1];
+  uploadPathBanner = __dirname + '/public/images/travel_outs/banner/' + fileNameBanner;
+  image.mv(uploadPathBanner, function(err) {
+  });
+
+  
+  var sql ="INSERT INTO travel_outs (title, image, banner) VALUES (?)";
+  var values = [req.body.title, fileNameImage, fileNameBanner];
+  connection.query(sql,[values], function (error, results, fields) {
+    if (error) throw error;
+    if (results.length > 0) {
+      res.json({status:0})   
+    } else {
+      res.json({status:0})
+    }
+  }); 
+  
+})
+
+app.post('/addTravel', (req, res) => {
+  console.log(req.files)
+  let image = req.files.image;
+  let fileNameImage = Date.now()+'.'+image.mimetype.split('/')[1];
+  uploadPathImage = __dirname + '/public/images/travels/' + fileNameImage;
+  image.mv(uploadPathImage, function(err) {
+  });
+  
+  var sql ="INSERT INTO travels (title, price, image, travelsTravelOutId, departure, destination, excursions, file,stay) VALUES (?)";
+  var values = [req.body.title, req.body.price,fileNameImage, req.body.travelOutId, req.body.departure, req.body.destination, req.body.excursions, req.body.file, req.body.stay];
+  connection.query(sql,[values], function (error, results, fields) {
+    if (error) throw error;
+    if (results.length > 0) {
+      res.json({status:0})   
+    } else {
+      res.json({status:0})
+    }
+  }); 
+  
 })
 
 
